@@ -25,7 +25,7 @@ const fetchPokemonData = async (pokemon: string) => {
     // Exibe o resultado formatado
     console.log(`${capitalizedName} – ${alturaMetros} m – ${pesoKg} kg – ${tipos}`);
   } catch (error) {
-    console.log('⚠️ Erro de rede. Tente novamente.');
+    console.log('Erro de rede. Tente novamente.');
   }
 }
 
