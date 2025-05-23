@@ -1,0 +1,56 @@
+.card {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: left;
+  border: 3px solid #007bff; 
+}
+
+.pokedex-card {
+  background-color: #f8f8f8;
+}
+
+.fav-pokedex-card{
+    background-color: #fff9c4;
+}
+
+.pokedex-name {
+  text-transform: capitalize;
+  margin-bottom: 10px;
+  font-size: 25px;
+}
+
+.pokedex-image {
+  display: block;
+  margin: 0 auto 10px;
+  width: 20rem;
+}
+
+.btn{
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-Radius: 4px;
+  cursor: pointer;
+  display: block;
+  margin: 25px auto;
+}
+
+.pokedex-favorito{
+  background-color: #f44336;
+}
+
+.pokedex-normal{
+    background-color: #4CAF50;
+}
+
+p{
+  background-color: #007bff;
+  color: #f8f8f8;
+  padding: 10px;
+  border-radius: 8px;
+  width: 70%;
+  text-align: center;
+  margin: 10px auto;
+}
+
