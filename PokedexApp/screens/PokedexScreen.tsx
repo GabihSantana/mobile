@@ -3,8 +3,11 @@ import { View, Text, FlatList, TextInput, StyleSheet, ActivityIndicator } from '
 import { getPokemons, getPokemonsDetails } from '../services/api';
 import { Pokemon } from '../types/Pokemon';
 import { PokemonCard } from '../components/PokemonCard';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const PokedexScreen = () => {
+    const insets = useSafeAreaInsets();
+
     const [pokemons, setPokemons] = useState<Pokemon[]>([]);
 
     const [search, setSearch] = useState('');
@@ -14,6 +17,7 @@ export const PokedexScreen = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            setError('');
             try{
                 setLoading(true);
                 const list = await getPokemons(30, offset); // primeiros 30 pokemons com offset
@@ -44,8 +48,8 @@ export const PokedexScreen = () => {
     const filtered = pokemons.filter(p => p.name.includes(search.toLowerCase()));
 
     return(
-        <View style={styles.container}>
-            <Text style={styles.title}>Pokédex</Text>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
+            <Text style={styles.title}>🔎 Pokédex</Text>
             <TextInput 
                 placeholder='Buscar Pokémon...'
                 style={styles.input}
@@ -78,7 +82,6 @@ export const PokedexScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 60,
         paddingHorizontal: 16
     },
     title: {
