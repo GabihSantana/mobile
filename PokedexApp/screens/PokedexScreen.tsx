@@ -1,18 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TextInput, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TextInput, StyleSheet, ActivityIndicator } from 'react-native';
 import { getPokemons, getPokemonsDetails } from '../services/api';
 import { Pokemon } from '../types/Pokemon';
 import { PokemonCard } from '../components/PokemonCard';
 
 export const PokedexScreen = () => {
     const [pokemons, setPokemons] = useState<Pokemon[]>([]);
+
     const [search, setSearch] = useState('');
+    const [isLoading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
     useEffect(() => {
         const fetchData = async () => {
-            const list = await getPokemons(30); // primeiros 30 pokemons
-            const details = await Promise.all(list.map(p => getPokemonsDetails(p.url)));
-            setPokemons(details);
+            try{
+                setLoading(true);
+                const list = await getPokemons(30); // primeiros 30 pokemons
+                const details = await Promise.all(list.map(p => getPokemonsDetails(p.url)));
+                setPokemons(details);
+            } catch (e){
+                setError("Falha ao carregar a Pokédex. Verifique sua conexão.");
+            }finally{
+                setLoading(false);
+            }
         };
         fetchData();
     }, []);
@@ -27,11 +37,19 @@ export const PokedexScreen = () => {
                 style={styles.input}
                 onChangeText={setSearch} />
 
-            <FlatList data={filtered}
-                keyExtractor={item => item.id.toString()}
-                numColumns={2}
-                renderItem={({item}) => <PokemonCard pokemon={item} /> } 
-            />
+            {error && <Text style={styles.error}>{error}</Text>}
+
+            {/* Verifica de isLoding é true, se for, exibe o ActivityIndicator, se não, mostra a FlatList */}
+            {isLoading ? (
+                <ActivityIndicator style={styles.loading} size="large" color="#0000ff" />
+            ) : (
+                <FlatList data={filtered} // array de dados que será exibido
+                    keyExtractor={item => item.id.toString()}
+                    numColumns={2}
+                    renderItem={({item}) => <PokemonCard pokemon={item} /> } 
+                />
+            )}
+
         </View>
     );
 };
@@ -53,4 +71,18 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginBottom: 20,
     },
+    loading: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    error: {
+        marginTop: 10,
+        color: 'red',
+        backgroundColor: '#ffe0e0',
+        padding: 8,
+        borderRadius: 4,
+        textAlign: 'center',
+        fontWeight: 'bold',
+    }
 });
