@@ -6,10 +6,10 @@ import { Pokemon, PokemonListItem } from '../types/Pokemon';
 const API_BASE = 'https://pokeapi.co/api/v2';
 
 // recebe um limite e retorna uma promise que resolve para um array de PokemonListItem
-export async function getPokemons(limit: number): Promise<PokemonListItem[]>{
+export async function getPokemons(limit: number, offset: number): Promise<PokemonListItem[]>{
     // faz um get
     try{
-        const res = await axios.get(`${API_BASE}/pokemon?limit=${limit}`);
+        const res = await axios.get(`${API_BASE}/pokemon?limit=${limit}&offset=${offset}`);
         // retorna o nome e a URL de detalhes
         return res.data.results;
     }catch(e){
