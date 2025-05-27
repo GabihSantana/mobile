@@ -47,6 +47,10 @@ export const PokedexScreen = () => {
                     keyExtractor={item => item.id.toString()}
                     numColumns={2}
                     renderItem={({item}) => <PokemonCard pokemon={item} /> } 
+                    // caso a array (data) estiver vazia, será exibido:
+                    ListEmptyComponent={() => (
+                            search ? <Text>Nenhum Pokémon encontrado para {search}</Text> : <Text>Nenhum Pokémon para exibir no momento.</Text>
+                            )}
                 />
             )}
 
