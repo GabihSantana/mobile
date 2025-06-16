@@ -32,3 +32,17 @@ export async function getPokemonsDetails(url: string): Promise<Pokemon>{
         throw e;
     }
 }
+
+export async function getPokemonById(id: number): Promise<Pokemon> {
+    try{
+        const res = await axios.get(`${API_BASE}/pokemon/${id}`);
+        return {
+            id: res.data.id,
+            name: res.data.name,
+            image: res.data.sprites.front_default,
+            types: res.data.types.map((t: any) => t.type.name),
+        }
+    }catch(e){
+        throw e;
+    } 
+}
