@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../types/Navigation';
 import { getPokemonById } from '../services/api';
 import { capitalize } from '../utils/format';
 import { Pokemon } from '../types/Pokemon';
+
+import { useFavorites } from '../src/contexts/FavoritesContext';
 
 type PokemonDetailsScreenRouteProp = RouteProp<RootStackParamList, 'PokemonDetails'>
 
@@ -15,6 +17,22 @@ export const PokemonDetailsScreen = () => {
     const [pokemon, setPokemon] = useState<Pokemon | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    // consumir o contexto de favoritos
+    const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+
+    // verifica se o pokemon atual é um favorito
+    const favorite = pokemon ? isFavorite(pokemon.id) : false;
+
+    const handleToggleFavorite = () => {
+      if (pokemon) {
+        if (favorite) {
+          removeFavorite(pokemon.id);
+        } else {
+          addFavorite(pokemon.id);
+        }
+      }
+    };
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -48,6 +66,10 @@ export const PokemonDetailsScreen = () => {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
+          {/* 3. Botão para favoritar */}
+          <TouchableOpacity onPress={handleToggleFavorite} style={styles.favoriteButton}>
+            <Text style={styles.favoriteIcon}>{favorite ? '⭐' : '☆'}</Text>
+          </TouchableOpacity>
             <Image source={{ uri: pokemon.image }} style={styles.image} />
             <Text style={styles.name}>{capitalize(pokemon.name)}</Text>
             <Text style={styles.idText}>ID: #{pokemon.id}</Text>
@@ -118,5 +140,14 @@ const styles = StyleSheet.create({
     marginTop: 16,
     alignItems: 'flex-start',
     width: '100%',
-  }
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 1,
+  },
+  favoriteIcon: {
+    fontSize: 32,
+  },
 });
