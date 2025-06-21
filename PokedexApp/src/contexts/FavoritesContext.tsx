@@ -1,4 +1,7 @@
-import React, { createContext, useState, ReactNode, useContext } from 'react';
+import React, { createContext, useState, ReactNode, useContext, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const FAVORITES_KEY = '@PokedexApp:favorites';
 
 // Definindo a interface (contrato)
 interface FavoritesContextData {
@@ -15,6 +18,41 @@ export const FavoritesContext = createContext<FavoritesContextData>({} as Favori
 export const FavoritesProvider = ({ children }: { children: ReactNode}) => {
     // armazena os IDs dos pokémons favoritos
     const [favorites, setFavorites] = useState<number[]>([]);
+
+    // 'loading' para o carregamento inicial
+    const [loading, setLoading] = useState(true);
+
+    // efeito para CARREGAR os favoritos do AsyncStorage na inicialização
+    useEffect(() => {
+        async function loadFavorites(){
+            try{
+                const storedFavorites = await AsyncStorage.getItem(FAVORITES_KEY);
+                if(storedFavorites) { // se há dados
+                    setFavorites(JSON.parse(storedFavorites)); // converte de JSON para array
+                }
+            }catch(e){
+                console.error("Falha ao carregar os favoritos do armazenamento.", e);
+            } finally{
+                setLoading(false);
+            }
+        }
+        loadFavorites();
+    }, []); // roda apenas 1 vez quando o provider é montado
+
+    // efeito para SALVAR os favoritos do AsyncStorage sempre que a lista mudar / sempre que o estado favorites muda
+    useEffect(() => {
+        // Evitamos salvar no primeniro render, antes dos dados serem carregados
+        if(!loading){
+            async function saveFavorites() {
+                try{
+                    await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); // converte para JSON e salva no disco
+                }catch(e){
+                    console.error("Falha ao salvar os favoritos no armazenamento.", e);
+                }
+            }
+            saveFavorites();
+        }
+    }, [favorites, loading]); // O efeito é disparado quando 'favorites' ou 'loading' muda
 
     // função para adicionar um favorito sem duplicar
     const addFavorite = (pokemonId: number) => {
@@ -34,13 +72,18 @@ export const FavoritesProvider = ({ children }: { children: ReactNode}) => {
         return favorites.includes(pokemonId);
     };
 
+    // Evita renderizar a aplicação antes que os favoritos sejam carregados
+    if (loading) {
+        return null;
+    }
+
     // retorna o Provider do contexto, passando o estado e as funções no "value"
     return (
         <FavoritesContext.Provider value={{ favorites, addFavorite, removeFavorite, isFavorite }} >
             {children}
         </FavoritesContext.Provider>
-    )
-}
+    );
+};
 
 // Hook customizado para consumir o contexto de favoritos
 export function useFavorites(): FavoritesContextData {
@@ -50,7 +93,5 @@ export function useFavorites(): FavoritesContextData {
     if(!context){
         throw new Error('useFavorites deve ser usado dentro de um FavoritesProvider');
     }
-
     return context;
-
 }
